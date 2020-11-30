@@ -61,7 +61,7 @@ public class EmojiText : Text, IPointerClickHandler
         base.Awake();
 
         // only run in playing mode
-        if(!Application.isPlaying)
+        if (!Application.isPlaying)
             return;
 
         if (null == emojiData && null != emojiAsset)
@@ -79,9 +79,11 @@ public class EmojiText : Text, IPointerClickHandler
         }
     }
 
+#if UNITY_EDITOR
     protected override void OnValidate()
     {
-        if(null != emojiAsset)
+        base.OnValidate();
+        if (null != emojiAsset)
         {
             material = emojiAsset.material;
         }
@@ -90,19 +92,20 @@ public class EmojiText : Text, IPointerClickHandler
             material = null;
         }
     }
+#endif
 
     protected override void OnPopulateMesh(VertexHelper toFill)
     {
         if (font == null)
             return;
 
-        if(string.IsNullOrEmpty(m_Text))
+        if (string.IsNullOrEmpty(m_Text))
         {
             base.OnPopulateMesh(toFill);
             return;
         }
         ParseText(m_Text);
-        
+
         // We don't care if we the font Texture changes while we are doing our Update.
         // The end result of cachedTextGenerator will be valid for this instance.
         // Otherwise we can get issues like Case 619238.
@@ -125,7 +128,7 @@ public class EmojiText : Text, IPointerClickHandler
             toFill.Clear();
             return;
         }
-        
+
         Vector3 repairVec = new Vector3(0, fontSize * 0.1f);
         Vector2 roundingOffset = new Vector2(verts[0].position.x, verts[0].position.y) * unitsPerPixel;
         roundingOffset = PixelAdjustPoint(roundingOffset) - roundingOffset;
@@ -340,7 +343,7 @@ public class EmojiText : Text, IPointerClickHandler
         IList<UIVertex> uList = cachedTextGenerator.verts;
         float h = uList[2].position.y - uList[1].position.y;
         Vector3[] temVecs = new Vector3[4];
-        
+
         for (int i = 0; i < hrefs.Count; i++)
         {
             var info = hrefs[i];
@@ -410,7 +413,7 @@ public class EmojiText : Text, IPointerClickHandler
         public int height;
         public SpriteInfo sprite;
     }
-    
+
     enum MatchType
     {
         None,
@@ -444,11 +447,11 @@ public class EmojiText : Text, IPointerClickHandler
             url = string.Empty;
             link = string.Empty;
         }
-        
+
         public void Parse(Match match, int fontSize)
         {
             Reset();
-            if(!match.Success || match.Groups.Count != 7)
+            if (!match.Success || match.Groups.Count != 7)
                 return;
             title = match.Groups[1].Value;
             if (match.Groups[2].Success)
@@ -509,7 +512,7 @@ public class EmojiText : Text, IPointerClickHandler
             return ColorUtility.ToHtmlStringRGBA(fontColor);
         }
     }
-    
+
     class HrefInfo
     {
         /// <summary>
