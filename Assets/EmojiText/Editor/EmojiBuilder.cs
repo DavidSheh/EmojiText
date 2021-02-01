@@ -1,8 +1,6 @@
 ﻿#if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
@@ -41,7 +39,6 @@ public class EmojiBuilder
         string ext = Path.GetExtension(path);
         string atlasPath = path.Replace(ext, ".png");
         var atlas = CreateAtlas(textures, atlasPath);
-        var count = atlas.frames.Count;
         List<SpriteInfo> spriteInfoList = new List<SpriteInfo>();
         var totalFrame = 0;
         for (int i = 0; i < atlas.frames.Count; i++)
@@ -83,24 +80,25 @@ public class EmojiBuilder
             var frameInfos = emojiAtlas.frames[i];
             for (int j = 0; j < frameInfos.Count; j++)
             {
+                var frame = frameInfos[j].texture;
                 // 填充单个图片的像素到 Atlas 中
-                for (int k = 0; k < frameInfos[j].texture.width; k++)
+                for (int k = 0; k < frame.width; k++)
                 {
-                    for (int l = 0; l < frameInfos[j].texture.height; l++)
+                    for (int l = 0; l < frame.height; l++)
                     {
-                        atlas.SetPixel(k + textureWidthCounter, l + textureHeightCounter, frameInfos[j].texture.GetPixel(k, l));
+                        atlas.SetPixel(k + textureWidthCounter, l + textureHeightCounter, frame.GetPixel(k, l));
                     }
                 }
 
-                textureWidthCounter += frameInfos[j].texture.width;
-                if (textureWidthCounter >= atlas.width)
+                textureWidthCounter += frame.width;
+                if (textureWidthCounter > atlas.width - frame.width)
                 {
                     textureWidthCounter = 0;
-                    textureHeightCounter += frameInfos[j].texture.height;
+                    textureHeightCounter += frame.height;
                 }
             }
         }
-
+        atlas.Apply();
         var tex = SaveSpriteToEditorPath(atlas, path);
         emojiAtlas.atlas = tex;
         return emojiAtlas;
@@ -111,7 +109,7 @@ public class EmojiBuilder
         Dictionary<string, List<FrameInfo>> dic = new Dictionary<string, List<FrameInfo>>();
         // get all select textures
         int width = 0;
-        int totalSize = 0;
+        int count = textures.Length;
         foreach (var texture in textures)
         {
             Match match = Regex.Match(texture.name, "^([a-zA-Z0-9]+)(_([0-9]+))?$");//name_idx; name
@@ -132,11 +130,14 @@ public class EmojiBuilder
                 index = 1;
             }
             frames.Add(new FrameInfo() { name = name, index = index, texture = texture });
-            if (texture.width > width)
+            if(0 == width)
             {
                 width = texture.width;
             }
-            totalSize += texture.width * texture.height;
+            else if (texture.width != width)
+            {
+                Debug.LogError($"单个表情的大小不一致！第一个表情的大小为: {width}, 当前表情 {texture.name} 的大小为：{texture.width}");
+            }
         }
 
         // sort frames
@@ -148,14 +149,8 @@ public class EmojiBuilder
         }
 
         frameInfos.Sort((a, b) => a[0].name.CompareTo(b[0].name));
-
-        int atlasWidth = CalcAtlasWidth(totalSize);
-        if(atlasWidth < 2)
-        {
-            Debug.LogError("计算表情图集宽度出错");
-            return null;
-        }
-        int column = atlasWidth / width;
+        int column = Mathf.CeilToInt(Mathf.Sqrt(count));
+        int atlasWidth = column * width;
         float emojiSize = ((float)width) / atlasWidth;
         var atlas = new EmojiAtlas()
         {
@@ -168,15 +163,6 @@ public class EmojiBuilder
         return atlas;
     }
 
-    static int CalcAtlasWidth(int totalSize)
-    {
-        // 计算最终生成的整张图的最小长宽，默认图集为最小2的N次方正方形
-        int power = Mathf.NextPowerOfTwo(totalSize);
-        int w = Mathf.CeilToInt(Mathf.Sqrt(power));
-        w = Mathf.NextPowerOfTwo(w);
-        return w;
-    }
-
     static Texture2D SaveSpriteToEditorPath(Texture2D sp, string path)
     {
         string dir = Path.GetDirectoryName(path);
@@ -187,15 +173,33 @@ public class EmojiBuilder
         AssetDatabase.Refresh();
         AssetDatabase.SaveAssets();
 
-        TextureImporter ti = AssetImporter.GetAtPath(path) as TextureImporter;
-        ti.textureType = TextureImporterType.Default;
-        ti.alphaIsTransparency = true;
-        ti.npotScale = TextureImporterNPOTScale.ToNearest;
-        ti.isReadable = false;
-        ti.mipmapEnabled = false;
-        ti.textureCompression = TextureImporterCompression.Uncompressed;
-        EditorUtility.SetDirty(ti);
-        ti.SaveAndReimport();
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        importer.textureType = TextureImporterType.Default;
+        importer.textureShape = TextureImporterShape.Texture2D;
+        importer.alphaIsTransparency = true;
+        importer.npotScale = TextureImporterNPOTScale.None;
+        importer.isReadable = false;
+        importer.mipmapEnabled = false;
+        
+        var settingsDefault = importer.GetDefaultPlatformTextureSettings();
+        settingsDefault.textureCompression = TextureImporterCompression.Uncompressed;
+        settingsDefault.maxTextureSize = 2048;
+        settingsDefault.format = TextureImporterFormat.RGBA32;
+
+        var settingsAndroid = importer.GetPlatformTextureSettings("Android");
+        settingsAndroid.overridden = true;
+        settingsAndroid.maxTextureSize = settingsDefault.maxTextureSize;
+        settingsAndroid.format = TextureImporterFormat.ASTC_RGBA_8x8;
+        importer.SetPlatformTextureSettings(settingsAndroid);
+
+        var settingsiOS = importer.GetPlatformTextureSettings("iPhone");
+        settingsiOS.overridden = true;
+        settingsiOS.maxTextureSize = settingsDefault.maxTextureSize;
+        settingsiOS.format = TextureImporterFormat.ASTC_RGBA_8x8;
+        importer.SetPlatformTextureSettings(settingsiOS);
+
+        EditorUtility.SetDirty(importer);
+        importer.SaveAndReimport();
         return AssetDatabase.LoadAssetAtPath(path, typeof(Texture2D)) as Texture2D;
     }
 
@@ -205,13 +209,23 @@ public class EmojiBuilder
     /// <param name="asset"></param>
     static void AddDefaultMaterial(EmojiAsset asset)
     {
-        Material material = new Material(Shader.Find("UI/EmojiFont"));
+        if(null == asset)
+        {
+            return;
+        }
+
+        var material = asset.material;
+        if (null == material)
+        {
+            material = new Material(Shader.Find("UI/EmojiFont"));
+            asset.material = material;
+            AssetDatabase.AddObjectToAsset(material, asset);
+        }
+        
         material.SetTexture("_EmojiTex", asset.spriteSheet);
         material.SetFloat("_EmojiSize", asset.emojiSize);
         material.SetFloat("_Column", asset.column);
-        asset.material = material;
         material.hideFlags = HideFlags.HideInHierarchy;
-        AssetDatabase.AddObjectToAsset(material, asset);
     }
 
     [MenuItem("GameObject/UI/EmojiText")]
