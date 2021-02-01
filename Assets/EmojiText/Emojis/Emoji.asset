@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteSheet: {fileID: 2800000, guid: c9f2f9190887ed14f94a3d118a9761f1, type: 3}
   material: {fileID: 21042065045865122}
-  emojiSize: 0.125
-  column: 8
+  emojiSize: 0.16666667
+  column: 6
   spriteInfoList:
   - name: angry
     index: 0
@@ -104,8 +104,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _ColorMask: 15
-    - _Column: 8
-    - _EmojiSize: 0.125
+    - _Column: 6
+    - _EmojiSize: 0.16666667
     - _EmojiSpeed: 3
     - _Stencil: 0
     - _StencilComp: 8
