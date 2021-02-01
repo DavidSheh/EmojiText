@@ -101,24 +101,25 @@ Shader "UI/EmojiFont" {
 		    float _Column;
 			float _EmojiSpeed;
 
-			fixed4 frag(v2f IN) : SV_Target
+			fixed4 frag(v2f i) : SV_Target
 			{
 				fixed4 color;
-				if (IN.texcoord1.y > 0)
+				if (i.texcoord1.y > 0)
 				{
 					// it's an emoji
-
 					// compute current frame index of emoji
-					//half index = abs(fmod(floor(_Time.x * _EmojiSpeed * 50), IN.texcoord1.y));
-					half index = abs(floor(fmod(_Time.x * _EmojiSpeed * 50, IN.texcoord1.y))); // 这里应该先 fmod 后再 floor，不然表情帧数取值会有误差
+					float index = floor((_Time.x * _EmojiSpeed * 50) % i.texcoord1.y);
 					// compute real uv xy
-					float x = fmod((IN.texcoord1.x+index), _Column)*_EmojiSize + IN.texcoord.x*_EmojiSize;
-					float y = floor((IN.texcoord1.x+index)/_Column)*_EmojiSize + IN.texcoord.y*_EmojiSize;
+					float offsetU = fmod((i.texcoord1.x+index) , _Column);
+					float offsetV = floor((i.texcoord1.x+index) / _Column);
+					float2 originUV = float2(offsetU, offsetV) * _EmojiSize;
+					float2 uv = originUV + i.texcoord * _EmojiSize;
+					uv = uv - float2(0.001, 0.001);// 0.001 用来矫正误差的，防止表情周边有表情图集中其他表情的黑边
 
-					color = tex2D(_EmojiTex, float2(x, y));
+					color = tex2D(_EmojiTex, uv);
 				} else {
 					// it's a text, and render it as normal ugui text
-					color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
+					color = (tex2D(_MainTex, i.texcoord) + _TextureSampleAdd) * i.color;
 				}
 
 				#ifdef UNITY_UI_ALPHACLIP
