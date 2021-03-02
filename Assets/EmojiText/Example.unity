@@ -429,7 +429,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 460}
+  m_SizeDelta: {x: 560, y: 560}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &505091683
 MonoBehaviour:
@@ -463,7 +463,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u8868\u60C5:\n\n\u6240\u6709\u8868\u60C5\uFF1A[cry|30][sad][angry|40][smile][cool][kiss|50#\u70B9\u51FB\u4E86\u52A8\u6001\u8868\u60C5kiss]\n\n\u9759\u6001\u8868\u60C5:[cry]\n\u81EA\u5B9A\u4E49\u5927\u5C0F\u4E14\u53EF\u70B9\u51FB\u7684\u9759\u6001\u8868\u60C5\uFF1A[sad|36#\u70B9\u51FB\u4E86\u9759\u6001\u8868\u60C5sad]\r\n\u662F\u81EA\u5B9A\u4E49\u5927\u5C0F\u4E14\u53EF\u70B9\u51FB\u7684\u52A8\u6001\u8868\u60C5\uFF1A[cool|40#\u70B9\u51FB\u4E86\u52A8\u6001\u8868\u60C5cool]\n\n\u8D85\u94FE\u63A5\uFF1A\n\u81EA\u5B9A\u4E49\u989C\u8272\u4E14\u53EF\u70B9\u51FB\u7684\u8D85\u94FE\u63A5[0x01#2a3ffb#\u70B9\u51FB\u4E86\u8D85\u94FE\u63A5=\u6211\u662F\u8D85\u94FE\u63A5\uFF0C\u5FEB\u70B9\u6211\uFF01]"
+  m_Text: "\u8868\u60C5:\n\n\u6240\u6709\u8868\u60C5\uFF1A[cry|30][sad][angry|40][smile][cool][kiss|50#\u70B9\u51FB\u4E86\u52A8\u6001\u8868\u60C5kiss]\n\n\u9759\u6001\u8868\u60C5:[cry]\n\u81EA\u5B9A\u4E49\u5927\u5C0F\u4E14\u53EF\u70B9\u51FB\u7684\u9759\u6001\u8868\u60C5\uFF1A[sad|36#\u70B9\u51FB\u4E86\u9759\u6001\u8868\u60C5sad]\r\n\u81EA\u5B9A\u4E49\u5927\u5C0F\u4E14\u53EF\u70B9\u51FB\u7684\u52A8\u6001\u8868\u60C5\uFF1A[cool|40#\u70B9\u51FB\u4E86\u52A8\u6001\u8868\u60C5cool]\n\n\u8D85\u94FE\u63A5\uFF1A\n\u81EA\u5B9A\u4E49\u989C\u8272\u4E14\u53EF\u70B9\u51FB\u7684\u8D85\u94FE\u63A5[0x01#2a3ffb#\u70B9\u51FB\u4E86\u8D85\u94FE\u63A5=\u6211\u662F\u8D85\u94FE\u63A5\uFF0C\u5FEB\u70B9\u6211\uFF01]\n\nuGUI
+    Text \u5BCC\u6587\u672C\uFF1A\n<color=green>\u989C\u8272</color>\u3001<b>\u52A0\u7C97</b>\u3001<i>\u659C\u4F53</i>\u3001<size=30>\u81EA\u5B9A\u4E49\u5927\u5C0F</size>\u3001<color=yellow><b><i>\u5BCC\u6587\u672C\u683C\u5F0F\u5D4C\u5957</i></b></color>"
   emojiAsset: {fileID: 11400000, guid: 1e3678a973fd732458e458c34cfc9eac, type: 2}
 --- !u!222 &505091684
 CanvasRenderer:
